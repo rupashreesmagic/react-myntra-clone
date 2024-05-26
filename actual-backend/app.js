@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -14,19 +15,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/items', async (req, res) => {
+app.get(`/items`, async (req, res) => {
   const storedItems = await getStoredItems();
   await new Promise((resolve, reject) => setTimeout(() => resolve(), 2000));
   res.json({ items: storedItems });
 });
 
-app.get('/items/:id', async (req, res) => {
+app.get(`/items/:id`, async (req, res) => {
   const storedItems = await getStoredItems();
   const item = storedItems.find((item) => item.id === req.params.id);
   res.json({ item });
 });
 
-app.post('/items', async (req, res) => {
+app.post(`/items`, async (req, res) => {
   const existingItems = await getStoredItems();
   const itemData = req.body;
   const newItem = {
@@ -37,5 +38,10 @@ app.post('/items', async (req, res) => {
   await storeItems(updatedItems);
   res.status(201).json({ message: 'Stored new item.', item: newItem });
 });
+
+app.get("/",(req,res)=>{
+  app.use(express.static(path.resolve(__dirname,"frontend-ui","build")));
+  res.sendFile(path.resolve(__dirname,"frontend-ui","build","index.html"));
+})
 
 app.listen(8080);
